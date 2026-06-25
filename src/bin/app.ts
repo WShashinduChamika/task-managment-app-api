@@ -1,9 +1,11 @@
 import express from "express";
+import { corsMiddleware } from '../core/middleware/cors';
 
 
 const app = express();
 
 // Global middleware
+app.use(corsMiddleware);
 app.use(express.json());
 
 // Health check
