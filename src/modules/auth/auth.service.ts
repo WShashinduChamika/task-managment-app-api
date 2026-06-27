@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import { conflictError } from "../../core/exceptions";
+import { conflictError, unauthorizedError } from "../../core/exceptions";
 import * as repository from "./auth.repository";
-import { UserRegisterDto } from "./dtos";
+import { UserLoginDto, UserRegisterDto } from "./dtos";
 import { AuthResponse, TokenPayload } from "./interfaces/auth.interface";
 import { IUser, UserRole } from "../../core/models";
 import * as jwt from "jsonwebtoken";
@@ -42,9 +42,9 @@ const buildAuthResponse = async (user: IUser): Promise<AuthResponse> => {
 };
 
 export const register = async(dto: UserRegisterDto): Promise<AuthResponse> => {
-   const excitUser = await repository.findUserByEmail(dto.email);
+   const exsitUser = await repository.findUserByEmail(dto.email);
 
-   if (excitUser) {
+   if (exsitUser) {
      throw conflictError('Email already registered');
    }
 
@@ -60,4 +60,25 @@ export const register = async(dto: UserRegisterDto): Promise<AuthResponse> => {
    });
 
    return buildAuthResponse(user);
-}
+};
+
+export const login = async(dto: UserLoginDto): Promise<AuthResponse> => {
+  const user = await repository.findUserByEmail(dto.email);
+
+  if (!user) {
+    throw unauthorizedError('Invalid credentials');
+  }
+
+  if (user.status !== 'active'){
+    throw unauthorizedError('Account is not active');
+  }
+
+  const isValid = await bcrypt.compare(dto.password, user.password);
+  if (!isValid) {
+    throw unauthorizedError('Invalid credentials');
+  }
+
+  await repository.updateLastLogin(user._id.toString());
+
+  return buildAuthResponse(user);
+};
