@@ -12,9 +12,9 @@ export const VALID_ROLES: UserRole[] = Object.values(UserRole);
 export interface IUserFields {
   firstName: string;
   lastName: string;
-  email?: string;
+  email: string;
   phone?: string;
-  password?: string;
+  password: string;
   role: UserRole;
   status: UserStatus;
   lastLoginAt?: Date;
@@ -31,9 +31,9 @@ const UserSchema = new Schema<IUser>(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: { type: String, lowercase: true },
+    email: { type: String, lowercase: true, required: true },
     phone: { type: String },
-    password: { type: String },
+    password: { type: String, required: true },
     role: {
       type: String,
       enum: VALID_ROLES,
