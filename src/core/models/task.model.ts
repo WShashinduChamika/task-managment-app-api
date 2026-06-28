@@ -19,6 +19,7 @@ export interface ITaskFields {
   dueDate: Date;
   createdBy: Types.ObjectId;
   assignedTo: Types.ObjectId | null;
+  deletedAt?: Date;
 }
 
 export interface ITask extends ITaskFields, Document {
@@ -51,6 +52,7 @@ const TaskSchema = new Schema<ITask>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    deletedAt: { type: Date },
   },
   { timestamps: true },
 );
@@ -60,6 +62,7 @@ TaskSchema.index({ assignedTo: 1 });
 TaskSchema.index({ status: 1 });
 TaskSchema.index({ priority: 1 });
 TaskSchema.index({ dueDate: 1 });
+TaskSchema.index({ deletedAt: 1 }, { sparse: true });
 TaskSchema.index({ title: "text", description: "text" });
 
 export const Task = mongoose.model<ITask>("Task", TaskSchema);
