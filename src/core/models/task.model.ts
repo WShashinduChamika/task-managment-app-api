@@ -16,9 +16,9 @@ export interface ITaskFields {
   description?: string;
   priority: TaskPriority;
   status: TaskStatus;
-  dueDate?: Date;
+  dueDate: Date;
   createdBy: Types.ObjectId;
-  assignedTo?: Types.ObjectId;
+  assignedTo: Types.ObjectId | null;
 }
 
 export interface ITask extends ITaskFields, Document {
@@ -41,7 +41,7 @@ const TaskSchema = new Schema<ITask>(
       enum: VALID_STATUSES,
       default: "Open",
     },
-    dueDate: { type: Date },
+    dueDate: { type: Date, required: true },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
