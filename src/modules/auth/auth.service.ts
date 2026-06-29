@@ -5,24 +5,26 @@ import { UserLoginDto, UserRegisterDto } from "./dtos";
 import { AuthResponse, TokenPayload } from "./interfaces/auth.interface";
 import { IUser, UserRole } from "../../core/models";
 import * as jwt from "jsonwebtoken";
-import * as crypto from 'crypto';
+import * as crypto from "crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_ACCESS_EXPIRY = parseInt(process.env.JWT_ACCESS_EXPIRY || '900');
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_ACCESS_EXPIRY = parseInt(process.env.JWT_ACCESS_EXPIRY || "900");
 const SALT_ROUNDS = 10;
 
 const generateAccessToken = (user: IUser): string => {
   const payload: TokenPayload = {
     sub: user._id.toString(),
     email: user.email,
-    phone: user.phone ?? '',
+    phone: user.phone ?? "",
     role: user.role,
     status: user.status,
     jti: crypto.randomUUID(),
   };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRY } as jwt.SignOptions);
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_ACCESS_EXPIRY,
+  } as jwt.SignOptions);
 };
-
 
 const buildAuthResponse = async (user: IUser): Promise<AuthResponse> => {
   const accessToken = generateAccessToken(user);
@@ -32,7 +34,7 @@ const buildAuthResponse = async (user: IUser): Promise<AuthResponse> => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      phone: user.phone ?? '',
+      phone: user.phone ?? "",
       role: user.role,
       status: user.status,
     },
@@ -41,41 +43,41 @@ const buildAuthResponse = async (user: IUser): Promise<AuthResponse> => {
   };
 };
 
-export const register = async(dto: UserRegisterDto): Promise<AuthResponse> => {
-   const exsitUser = await repository.findUserByEmail(dto.email);
+export const register = async (dto: UserRegisterDto): Promise<AuthResponse> => {
+  const exsitUser = await repository.findUserByEmail(dto.email);
 
-   if (exsitUser) {
-     throw conflictError('Email already registered');
-   }
+  if (exsitUser) {
+    throw conflictError("Email already registered");
+  }
 
-   const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
-   const user = await repository.createUser({
-     firstName: dto.firstName,
-     lastName: dto.lastName,
-     email: dto.email.toLowerCase(),
-     password: hashedPassword,
-     phone: dto.phone ?? '',
-     role: dto.role ?? UserRole.User
-   });
+  const user = await repository.createUser({
+    firstName: dto.firstName,
+    lastName: dto.lastName,
+    email: dto.email.toLowerCase(),
+    password: hashedPassword,
+    phone: dto.phone ?? "",
+    role: dto.role ?? UserRole.User,
+  });
 
-   return buildAuthResponse(user);
+  return buildAuthResponse(user);
 };
 
-export const login = async(dto: UserLoginDto): Promise<AuthResponse> => {
+export const login = async (dto: UserLoginDto): Promise<AuthResponse> => {
   const user = await repository.findUserByEmail(dto.email);
 
   if (!user) {
-    throw unauthorizedError('Invalid credentials');
+    throw unauthorizedError("Invalid credentials");
   }
 
-  if (user.status !== 'active'){
-    throw unauthorizedError('Account is not active');
+  if (user.status !== "active") {
+    throw unauthorizedError("Account is not active");
   }
 
   const isValid = await bcrypt.compare(dto.password, user.password);
   if (!isValid) {
-    throw unauthorizedError('Invalid credentials');
+    throw unauthorizedError("Invalid credentials");
   }
 
   await repository.updateLastLogin(user._id.toString());

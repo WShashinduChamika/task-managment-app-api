@@ -84,3 +84,26 @@ export const updateTask = async (
     next(error);
   }
 };
+
+export const deleteTask = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!OBJECT_ID_REGEX.test(id as string)) {
+      throw validationError("Invalid task id");
+    }
+
+    const { id: requesterId, role } = getUserIdAndRole(req.user);
+
+    await tasksService.deleteTask(id as string, requesterId, role);
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+

@@ -75,3 +75,11 @@ export const updateTask = async (
     { new: true, runValidators: true },
   ).exec();
 };
+
+export const softDeleteTask = async (id: string): Promise<ITask | null> => {
+  return await Task.findOneAndUpdate(
+    { _id: id, deletedAt: null },
+    { $set: { deletedAt: new Date() } },
+    { new: true },
+  ).exec();
+};

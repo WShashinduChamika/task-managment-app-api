@@ -9,5 +9,7 @@ router.get("/", tasksController.getTasksList);
 
 router.patch("/:id", tasksController.updateTask);
 
+router.delete("/:id", tasksController.deleteTask);
+
 export default router;
 

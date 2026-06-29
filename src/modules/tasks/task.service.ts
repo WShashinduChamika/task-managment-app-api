@@ -171,16 +171,30 @@ export const updateTask = async (
     throw notFound("Task not found");
   }
 
-  return {
-    id: updated._id.toString(),
-    title: updated.title,
-    description: updated.description ?? "",
-    priority: updated.priority,
-    status: updated.status,
-    dueDate: updated.dueDate,
-    createdBy: updated.createdBy.toString(),
-    assignedTo: updated.assignedTo?.toString() ?? null,
-    createdAt: updated.createdAt,
-    updatedAt: updated.updatedAt,
-  };
+  return buildCreateTaskResponse(updated);
+};
+
+export const deleteTask = async (
+  taskId: string,
+  requesterId: string,
+  role: UserRole,
+): Promise<void> => {
+  const existing = await repository.findById(taskId);
+
+  if (!existing) {
+    throw notFound("Task not found");
+  }
+
+  if (
+    role !== UserRole.Admin &&
+    existing.createdBy.toString() !== requesterId
+  ) {
+    throw forbiddenError("You are not authorized to delete this task");
+  }
+
+  const deleted = await repository.softDeleteTask(taskId);
+
+  if (!deleted) {
+    throw notFound("Task not found");
+  }
 };
