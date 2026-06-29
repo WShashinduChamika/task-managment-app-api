@@ -1,11 +1,11 @@
 import { NextFunction, Response } from "express";
 import { validateSchema } from "../../common/utils/validation.utils";
-import {
-  ListUsersQuerySchema,
-  type ListUsersQueryDto,
-} from "./dto";
+import { ListUsersQuerySchema, type ListUsersQueryDto } from "./dto";
 import * as usersService from "./user.service";
-import { AuthRequest, getUserIdAndRole } from "../../core/middleware/auth-middleware";
+import {
+  AuthRequest,
+  getUserIdAndRole,
+} from "../../core/middleware/auth-middleware";
 
 export const getUsersList = async (
   req: AuthRequest,
@@ -21,6 +21,22 @@ export const getUsersList = async (
     const { role } = getUserIdAndRole(req.user);
 
     const result = await usersService.listUsers(query, role);
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getActiveUsers = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { role } = getUserIdAndRole(req.user);
+
+    const result = await usersService.getActiveUsersList(role);
 
     res.status(200).json({ success: true, data: result });
   } catch (error) {

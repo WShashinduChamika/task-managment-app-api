@@ -50,3 +50,11 @@ export const findAllPaginated = async (
 
   return { users, total };
 };
+
+export const findActiveUsers = async (): Promise<any[]> => {
+  return await User.find({ status: "active", deletedAt: null })
+    .select("firstName lastName email")
+    .sort({ firstName: 1, lastName: 1 })
+    .exec();
+};
+

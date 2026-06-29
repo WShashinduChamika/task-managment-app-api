@@ -3,7 +3,8 @@ import * as usersController from "./user.controller";
 
 const router = Router();
 
-// Only Admins can list users
+router.get("/active", usersController.getActiveUsers);
+
 router.get("/", usersController.getUsersList);
 
 export default router;

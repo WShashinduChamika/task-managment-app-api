@@ -18,3 +18,10 @@ export interface UserFilter {
   role?: UserRole | undefined;
   status?: UserStatus | undefined;
 }
+
+export interface ActiveUserResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}

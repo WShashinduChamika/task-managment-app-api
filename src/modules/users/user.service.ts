@@ -1,6 +1,6 @@
 import * as repository from "./user.repository";
 import type { ListUsersQueryDto } from "./dto";
-import { UserResponse } from "./interfaces/user.interface";
+import { UserResponse, ActiveUserResponse } from "./interfaces/user.interface";
 import { IUser, UserRole } from "../../core/models/user.model";
 import { PaginatedResult } from "../../core/interfaces/paginations.interface";
 import { forbiddenError } from "../../core/exceptions";
@@ -57,4 +57,21 @@ export const listUsers = async (
     limit,
     totalPages: Math.ceil(total / limit),
   };
+};
+
+export const getActiveUsersList = async (
+  role: UserRole,
+): Promise<ActiveUserResponse[]> => {
+  if (role == UserRole.User) {
+    throw forbiddenError("Only administrators can view the user list");
+  }
+
+  const users = await repository.findActiveUsers();
+
+  return users.map((user) => ({
+    id: user._id.toString(),
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+  }));
 };

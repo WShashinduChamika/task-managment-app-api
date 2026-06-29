@@ -1,5 +1,5 @@
 import { z } from "zod/v3";
-import { UserRole, UserStatus } from "../../../core/models";
+import { UserRole } from "../../../core/models";
 
 export const ListUsersQuerySchema = z.object({
   page: z.coerce
