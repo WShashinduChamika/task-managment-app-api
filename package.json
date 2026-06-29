@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npx ts-node src/bin/server.ts",
     "build": "tsc",
+    "start": "node dist/bin/server.js",
     "watch": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
