@@ -65,6 +65,14 @@ export const findById = async (id: string): Promise<ITask | null> => {
   return await Task.findOne({ _id: id, deletedAt: null }).exec();
 };
 
+export const findByIdPopulated = async (id: string): Promise<any | null> => {
+  return await Task.findOne({ _id: id, deletedAt: null })
+    .populate("createdBy", "firstName lastName email")
+    .populate("assignedTo", "firstName lastName email")
+    .exec();
+};
+
+
 export const updateTask = async (
   id: string,
   data: Partial<ITaskFields>,

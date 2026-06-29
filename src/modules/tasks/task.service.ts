@@ -130,6 +130,29 @@ export const listTasks = async (
   };
 };
 
+export const getTaskById = async (
+  taskId: string,
+  requesterId: string,
+  role: UserRole,
+): Promise<GetTaskResponse> => {
+  const task = await repository.findByIdPopulated(taskId);
+
+  if (!task) {
+    throw notFound("Task not found");
+  }
+
+  if (
+    role !== UserRole.Admin &&
+    task.createdBy._id?.toString() !== requesterId &&
+    task.assignedTo?._id?.toString() !== requesterId
+  ) {
+    throw forbiddenError("You are not authorized to view this task");
+  }
+
+  return buildListTasksResponse(task);
+};
+
+
 export const updateTask = async (
   taskId: string,
   dto: UpdateTaskDto,

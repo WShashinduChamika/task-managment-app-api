@@ -56,6 +56,32 @@ export const getTasksList = async (
   }
 };
 
+export const getTaskById = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!OBJECT_ID_REGEX.test(id as string)) {
+      throw validationError("Invalid task id");
+    }
+
+    const { id: requesterId, role } = getUserIdAndRole(req.user);
+
+    const result = await tasksService.getTaskById(
+      id as string,
+      requesterId,
+      role,
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateTask = async (
   req: AuthRequest,
   res: Response,
