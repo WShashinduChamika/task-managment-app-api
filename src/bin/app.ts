@@ -3,6 +3,7 @@ import { corsMiddleware } from "../core/middleware/cors";
 import { errorHandler } from "../core/middleware/error-handler";
 import authRouter from "../modules/auth/auth.router";
 import taskRouter from "../modules/tasks/task.router";
+import userRouter from "../modules/users/user.router";
 import { stripApiPrefix } from "../core/middleware/strip-api-prefix.middleware";
 import { authMiddleware } from "../core/middleware/auth-middleware";
 
@@ -24,6 +25,8 @@ app.get("/health", (_req, res) => {
 app.use("/auth", authRouter);
 
 app.use("/tasks", authMiddleware, taskRouter);
+
+app.use("/users", authMiddleware, userRouter);
 
 // Global error handler
 app.use(errorHandler);
