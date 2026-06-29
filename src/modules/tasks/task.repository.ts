@@ -72,7 +72,6 @@ export const findByIdPopulated = async (id: string): Promise<any | null> => {
     .exec();
 };
 
-
 export const updateTask = async (
   id: string,
   data: Partial<ITaskFields>,
@@ -80,14 +79,22 @@ export const updateTask = async (
   return await Task.findOneAndUpdate(
     { _id: id, deletedAt: null },
     { $set: data },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   ).exec();
 };
 
 export const softDeleteTask = async (id: string): Promise<ITask | null> => {
-  return await Task.findOneAndUpdate(
-    { _id: id, deletedAt: null },
-    { $set: { deletedAt: new Date() } },
-    { new: true },
-  ).exec();
+  const task = await Task.findOne({
+    _id: id,
+    deletedAt: null,
+  });
+
+  if (!task) {
+    return null;
+  }
+
+  task.deletedAt = new Date();
+  await task.save();
+
+  return task;
 };
