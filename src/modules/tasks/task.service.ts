@@ -181,9 +181,6 @@ export const updateTask = async (
   if (dto.dueDate !== undefined) updateData.dueDate = new Date(dto.dueDate);
 
   if (dto.assignedTo !== undefined) {
-    if (role === UserRole.User) {
-      throw forbiddenError("Users cannot reassign tasks");
-    }
     updateData.assignedTo =
       dto.assignedTo !== null ? new Types.ObjectId(dto.assignedTo) : null;
   }
