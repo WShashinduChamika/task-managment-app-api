@@ -16,6 +16,11 @@ export interface CreateTaskResponse extends TaskResponse {
   assignedTo: string | null;
 }
 
+export interface UpdateTaskResponse extends TaskResponse {
+  createdBy: string;
+  assignedTo: string | null;
+}
+
 export interface GetTaskResponse extends TaskResponse {
   createdBy: {
     id: string;

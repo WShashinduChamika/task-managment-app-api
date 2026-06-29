@@ -1,14 +1,16 @@
 import { Types } from "mongoose";
 import * as repository from "./task.repository";
-import type { CreateTaskDto, ListTasksQueryDto } from "./dto";
+import type { CreateTaskDto, ListTasksQueryDto, UpdateTaskDto } from "./dto";
 import {
   CreateTaskResponse,
   GetTaskResponse,
   TaskResponse,
+  UpdateTaskResponse,
 } from "./interfaces/task.interface";
 import { ITask } from "../../core/models/task.model";
 import { UserRole } from "../../core/models";
 import { PaginatedResult } from "../../core/interfaces/paginations.interface";
+import { notFound, forbiddenError } from "../../core/exceptions";
 
 const buildCreateTaskResponse = (task: ITask): CreateTaskResponse => {
   return {
@@ -125,5 +127,60 @@ export const listTasks = async (
     page,
     limit,
     totalPages: Math.ceil(total / limit),
+  };
+};
+
+export const updateTask = async (
+  taskId: string,
+  dto: UpdateTaskDto,
+  requesterId: string,
+  role: UserRole,
+): Promise<UpdateTaskResponse> => {
+  const existing = await repository.findById(taskId);
+
+  if (!existing) {
+    throw notFound("Task not found");
+  }
+
+  if (
+    role !== UserRole.Admin &&
+    existing.createdBy.toString() !== requesterId
+  ) {
+    throw forbiddenError("You are not authorized to update this task");
+  }
+
+  const updateData: Partial<ITask> = {};
+
+  if (dto.title !== undefined) updateData.title = dto.title;
+  if (dto.description !== undefined) updateData.description = dto.description;
+  if (dto.priority !== undefined) updateData.priority = dto.priority;
+  if (dto.status !== undefined) updateData.status = dto.status;
+  if (dto.dueDate !== undefined) updateData.dueDate = new Date(dto.dueDate);
+
+  if (dto.assignedTo !== undefined) {
+    if (role === UserRole.User) {
+      throw forbiddenError("Users cannot reassign tasks");
+    }
+    updateData.assignedTo =
+      dto.assignedTo !== null ? new Types.ObjectId(dto.assignedTo) : null;
+  }
+
+  const updated = await repository.updateTask(taskId, updateData);
+
+  if (!updated) {
+    throw notFound("Task not found");
+  }
+
+  return {
+    id: updated._id.toString(),
+    title: updated.title,
+    description: updated.description ?? "",
+    priority: updated.priority,
+    status: updated.status,
+    dueDate: updated.dueDate,
+    createdBy: updated.createdBy.toString(),
+    assignedTo: updated.assignedTo?.toString() ?? null,
+    createdAt: updated.createdAt,
+    updatedAt: updated.updatedAt,
   };
 };

@@ -24,7 +24,7 @@ export const findAllPaginated = async (
   const query: Record<string, any> = { deletedAt: null };
 
   if (search) {
-    query.$text = { $search: search };
+    query.title = { $regex: search, $options: "i" };
   }
 
   if (status) {
@@ -59,4 +59,19 @@ export const findAllPaginated = async (
   ]);
 
   return { tasks, total };
+};
+
+export const findById = async (id: string): Promise<ITask | null> => {
+  return await Task.findOne({ _id: id, deletedAt: null }).exec();
+};
+
+export const updateTask = async (
+  id: string,
+  data: Partial<ITaskFields>,
+): Promise<ITask | null> => {
+  return await Task.findOneAndUpdate(
+    { _id: id, deletedAt: null },
+    { $set: data },
+    { new: true, runValidators: true },
+  ).exec();
 };
