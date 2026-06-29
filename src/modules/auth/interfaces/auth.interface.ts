@@ -13,6 +13,8 @@ export interface AuthResponse {
     user: AuthUserResponse;
     accessToken: string;
     expiresIn: number;
+    refreshToken: string;
+    refreshExpiresIn: number;
 }
 
 export interface TokenPayload {
